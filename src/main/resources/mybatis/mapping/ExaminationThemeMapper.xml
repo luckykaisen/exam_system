@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiyinhui.exam.mapper.ExaminationThemeMapper">
+
+    <resultMap
+            id="examinationThemeResult"
+            type="ExaminationTheme">
+        <id property="id" column="examination_theme_id" javaType="integer" jdbcType="INTEGER"/>
+        <result property="name" column="examination_theme_name" javaType="string" jdbcType="VARCHAR"/>
+        <result property="minute" column="examination_theme_minute" javaType="integer" jdbcType="INTEGER"/>
+        <result property="totalScore" column="examination_theme_total_score" javaType="double" jdbcType="DOUBLE"/>
+        <association property="subject" javaType="Subject" resultMap="subjectResult"/>
+    </resultMap>
+
+    <resultMap
+            id="subjectResult"
+            type="Subject"
+            extends="com.jiyinhui.exam.mapper.SubjectMapper.subjectResult"/>
+
+    <sql id="examiationThemeColumns">
+        et.id AS examination_theme_id,
+        et.name AS examination_theme_name,
+        et.minute AS examination_theme_minute,
+        et.total_score AS examination_theme_total_score
+    </sql>
+
+    <sql id="subjectColumns">
+        <include refid="com.jiyinhui.exam.mapper.SubjectMapper.subjectColumns"/>
+    </sql>
+
+    <select
+            id="searchExaminationThemeByFilter"
+            parameterType="ExaminationThemeFilter"
+            resultMap="examinationThemeResult">
+        SELECT
+            <include refid="examiationThemeColumns"/>,
+            <include refid="subjectColumns"/>
+        FROM
+            t_examination_theme et
+            INNER JOIN t_subject sub ON et.subject_id = sub.id
+    </select>
+
+    <select id="getExaminationThemeById"
+            parameterType="string"
+            resultMap="examinationThemeResult">
+        SELECT
+            <include refid="examiationThemeColumns"/>,
+            <include refid="subjectColumns"/>
+        FROM
+            t_examination_theme et
+        INNER JOIN t_subject sub ON et.subject_id = sub.id
+        <where>
+            et.id = #{id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </select>
+    
+    <select
+            id="getExaminationThemeByName"
+            parameterType="string"
+            resultMap="examinationThemeResult">
+        SELECT
+            <include refid="examiationThemeColumns"/>,
+            <include refid="subjectColumns"/>
+        FROM
+            t_examination_theme et
+            INNER JOIN t_subject sub ON et.subject_id = sub.id
+        <where>
+            et.name = #{name, javaType=string, jdbcType=VARCHAR}
+        </where>
+    </select>
+
+    <insert
+            id="createExaminationTheme"
+            parameterType="ExaminationTheme"
+            useGeneratedKeys="true"
+            keyProperty="examinationTheme.id"
+            keyColumn="id">
+        INSERT INTO t_examination_theme(
+            `name`,
+            `minute`,
+            `total_score`,
+            `subject_id`
+        ) VALUE (
+            #{examinationTheme.name, javaType=string, jdbcType=VARCHAR},
+            #{examinationTheme.minute, javaType=integer, jdbcType=INTEGER},
+            #{examinationTheme.totalScore, javaType=double, jdbcType=DOUBLE},
+            #{examinationTheme.subject.id, javaType=integer, jdbcType=INTEGER}
+        )
+    </insert>
+
+    <update id="updateExaminationTheme"
+            parameterType="ExaminationTheme">
+        UPDATE t_examination_theme
+        <set>
+            `name` = #{theme.name, javaType=string, jdbcType=VARCHAR},
+            `minute` = #{theme.minute, javaType=integer, jdbcType=INTEGER}
+        </set>
+        <where>
+            `id` = #{theme.id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </update>
+</mapper>

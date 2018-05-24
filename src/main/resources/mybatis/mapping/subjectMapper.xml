@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiyinhui.exam.mapper.SubjectMapper">
+
+    <resultMap
+            id="subjectResult"
+            type="Subject">
+        <id property="id" column="subject_id" javaType="integer" jdbcType="INTEGER"/>
+        <result property="name" column="subject_name" javaType="string" jdbcType="VARCHAR"/>
+        <result property="disciplineType" column="subject_discipline_type_id" javaType="DisciplineType" typeHandler="DisciplineTypeHandler"/>
+    </resultMap>
+
+    <sql id="subjectColumns">
+        sub.id AS subject_id,
+        sub.name AS subject_name,
+        sub.discipline_type_id AS subject_discipline_type_id
+    </sql>
+
+    <select
+            id="getAllSubject"
+            resultMap="subjectResult">
+        SELECT
+            <include refid="subjectColumns"/>
+        FROM
+            t_subject sub
+    </select>
+
+    <select id="getSubjectById"
+            parameterType="int"
+            resultMap="subjectResult">
+        SELECT
+            <include refid="subjectColumns"/>
+        FROM
+            t_subject sub
+        <where>
+            sub.id =  #{id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </select>
+
+    <update id="modifySubject"
+            parameterType="Subject">
+        UPDATE t_subject
+        <set>
+            `name` = #{subject.name, javaType=string, jdbcType=VARCHAR},
+            `discipline_type_id` = #{subject.disciplineType.id, javaType=integer, jdbcType=INTEGER}
+        </set>
+        <where>
+            `id` = #{subject.id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </update>
+
+    <insert id="insertSubject"
+            parameterType="Subject">
+        INSERT INTO t_subject(
+            `name`,
+            `discipline_type_id`
+        ) VALUE (
+            #{subject.name, javaType=string, jdbcType=VARCHAR},
+            #{subject.disciplineType.id, javaType=integer, jdbcType=INTEGER}
+        )
+    </insert>
+
+    <delete id="deleteSubjectById"
+            parameterType="int">
+        DELETE FROM t_subject
+        <where>
+            `id` =  #{id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </delete>
+</mapper>

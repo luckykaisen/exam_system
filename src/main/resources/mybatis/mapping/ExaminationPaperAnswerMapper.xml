@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiyinhui.exam.mapper.ExaminationPaperAnswerMapper">
+
+    <resultMap
+            id="examinationPaperAnswerResult"
+            type="ExaminationPaperAnswer">
+        <id property="id" column="examination_paper_answer_id" javaType="integer" jdbcType="INTEGER"/>
+        <association property="option" javaType="Option" resultMap="optionResult"/>
+        <association property="examinationPaperOption" javaType="ExaminationPaperOption" resultMap="examinationPaperOptionResult"/>
+    </resultMap>
+
+    <resultMap id="optionResult"
+               type="Option"
+               extends="com.jiyinhui.exam.mapper.OptionMapper.optionResult"/>
+
+    <resultMap id="examinationPaperOptionResult"
+               type="ExaminationPaperOption"
+               extends="com.jiyinhui.exam.mapper.ExaminationPaperOptionMapper.examinationPaperOptionResult"/>
+
+    <sql id="itemPoolColumns">
+        <include refid="com.jiyinhui.exam.mapper.ItemMapper.itemPoolColumns"/>
+    </sql>
+
+    <sql id="examinationPaperColumns">
+        <include refid="com.jiyinhui.exam.mapper.ExaminationPaperMapper.examinationPaperColumns"/>
+    </sql>
+
+    <sql id="subjectColumns">
+        <include refid="com.jiyinhui.exam.mapper.SubjectMapper.subjectColumns"/>
+    </sql>
+
+    <sql id="sectionColumns">
+        <include refid="com.jiyinhui.exam.mapper.SectionMapper.sectionColumns"/>
+    </sql>
+
+    <sql id="examinationPaperOptionColumns">
+        <include refid="com.jiyinhui.exam.mapper.ExaminationPaperOptionMapper.examinationPaperOptionColumns"/>
+    </sql>
+
+    <sql id="optionColumns">
+        <include refid="com.jiyinhui.exam.mapper.OptionMapper.optionColumns"/>
+    </sql>
+
+    <sql id="examinationPaperAnswerColumns">
+          epa.id AS examination_paper_answer_id,
+          epa.option_id AS examination_paper_answer_option_id,
+          epa.examination_paper_option_id AS examination_paper_answer_examination_paper_option_id
+    </sql>
+
+    <select
+            id="searchExaminationPaperAnswerByExaminationPaperOptionId"
+            parameterType="int"
+            resultMap="examinationPaperAnswerResult">
+        SELECT
+            <include refid="examinationPaperAnswerColumns"/>,
+            <include refid="optionColumns"/>,
+            <include refid="examinationPaperOptionColumns"/>,
+            <include refid="sectionColumns"/>,
+            <include refid="subjectColumns"/>,
+            <include refid="examinationPaperColumns"/>,
+            <include refid="itemPoolColumns"/>
+        FROM
+            t_examination_paper_answer epa
+        INNER JOIN t_option opt ON opt.id = epa.option_id
+        INNER JOIN t_examination_paper_option epo ON epo.id = epa.examination_paper_option_id
+        INNER JOIN t_examination_paper ep ON ep.id = epo.examination_paper_id
+        INNER JOIN t_item_pool ip ON ip.id = epo.item_pool_id
+        INNER JOIN t_section sec ON sec.id = ip.section_id
+        INNER JOIN t_subject sub ON sub.id = sec.subject_id
+        <where>
+            epo.id = #{paperOptionId, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </select>
+
+    <insert id="insertExaminationPaperAnswer"
+            parameterType="java.util.Arrays">
+          INSERT INTO t_examination_paper_answer(
+                `option_id`,
+                `examination_paper_option_id`
+          ) VALUES
+          <foreach collection="answers" item="answer" separator=",">
+              (
+                  #{answer.option.id, javaType=integer, jdbcType=INTEGER},
+                  #{answer.examinationPaperOption.id, javaType=integer, jdbcType=INTEGER}
+              )
+          </foreach>
+    </insert>
+</mapper>
+
+

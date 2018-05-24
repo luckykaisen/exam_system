@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+
+
+    <typeAliases>
+        <typeAlias alias="Subject" type="com.jiyinhui.exam.entity.Subject"/>
+        <typeAlias alias="DisciplineType" type="com.jiyinhui.exam.entity.DisciplineType"/>
+        <typeAlias alias="ItemStatus" type="com.jiyinhui.exam.entity.ItemStatus"/>
+        <typeAlias alias="ExaminationTheme" type="com.jiyinhui.exam.entity.ExaminationTheme"/>
+        <typeAlias alias="ExaminationThemeSection" type="com.jiyinhui.exam.entity.ExaminationThemeSection"/>
+        <typeAlias alias="Section" type="com.jiyinhui.exam.entity.Section"/>
+        <typeAlias alias="Subject" type="com.jiyinhui.exam.entity.Subject"/>
+        <typeAlias alias="SectionFilter" type="com.jiyinhui.exam.entity.filter.SectionFilter"/>
+        <typeAlias alias="ExaminationThemeFilter" type="com.jiyinhui.exam.entity.filter.ExaminationThemeFilter"/>
+        <typeAlias alias="ExaminationPaper" type="com.jiyinhui.exam.entity.ExaminationPaper"/>
+        <typeAlias alias="User" type="com.jiyinhui.exam.entity.User"/>
+        <typeAlias alias="UserStatus" type="com.jiyinhui.exam.entity.UserStatus"/>
+        <typeAlias alias="Bool" type="com.jiyinhui.exam.entity.Bool"/>
+        <typeAlias alias="ItemPool" type="com.jiyinhui.exam.entity.ItemPool"/>
+        <typeAlias alias="Option" type="com.jiyinhui.exam.entity.Option"/>
+        <typeAlias alias="ItemFilter" type="com.jiyinhui.exam.entity.filter.ItemFilter"/>
+        <typeAlias alias="ExaminationPaperOption" type="com.jiyinhui.exam.entity.ExaminationPaperOption"/>
+        <typeAlias alias="ExaminationPaperAnswer" type="com.jiyinhui.exam.entity.ExaminationPaperAnswer"/>
+        <typeAlias alias="examinationPaperThemeSection" type="com.jiyinhui.exam.entity.ExaminationPaperThemeSection"/>
+
+
+        <typeAlias alias="DisciplineTypeHandler" type="com.jiyinhui.exam.config.mybatis.handler.DisciplineTypeHandler"/>
+        <typeAlias alias="ItemStatusHandler" type="com.jiyinhui.exam.config.mybatis.handler.ItemStatusHandler"/>
+        <typeAlias alias="UserStatusHandler" type="com.jiyinhui.exam.config.mybatis.handler.UserStatusHandler"/>
+        <typeAlias alias="BoolHandler" type="com.jiyinhui.exam.config.mybatis.handler.BoolHandler"/>
+    </typeAliases>
+
+    <typeHandlers>
+        <typeHandler handler="DisciplineTypeHandler" javaType="com.jiyinhui.exam.config.mybatis.handler.DisciplineTypeHandler"/>
+        <typeHandler handler="ItemStatusHandler" javaType="com.jiyinhui.exam.config.mybatis.handler.ItemStatusHandler"/>
+        <typeHandler handler="UserStatusHandler" javaType="com.jiyinhui.exam.config.mybatis.handler.UserStatusHandler"/>
+        <typeHandler handler="BoolHandler" javaType="com.jiyinhui.exam.config.mybatis.handler.BoolHandler"/>
+    </typeHandlers>
+
+    <plugins>
+        <plugin interceptor="com.github.pagehelper.PageInterceptor">
+            <!-- 设置数据库类型 Oracle,Mysql,MariaDB,SQLite,Hsqldb,PostgreSQL六种数据库-->
+            <property name="helperDialect" value="mysql"/>
+        </plugin>
+    </plugins>
+</configuration>

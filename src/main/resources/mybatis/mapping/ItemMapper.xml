@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiyinhui.exam.mapper.ItemMapper">
+
+    <resultMap
+            id="itemPoolResult"
+            type="ItemPool">
+        <id property="id" column="item_pool_id" javaType="integer" jdbcType="INTEGER"/>
+        <result property="topic" column="item_pool_topic" javaType="string" jdbcType="VARCHAR"/>
+        <result property="score" column="item_pool_score" javaType="double" jdbcType="DOUBLE"/>
+        <result property="itemStatus" column="item_pool_item_pool_status_id" javaType="ItemStatus" typeHandler="ItemStatusHandler"/>
+        <result property="isDelete" column="item_pool_is_delete" javaType="Bool" typeHandler="BoolHandler"/>
+        <association property="section" javaType="Section" resultMap="sectionResult"/>
+    </resultMap>
+
+    <resultMap
+            id="subjectResult"
+            type="Subject"
+            extends="com.jiyinhui.exam.mapper.SubjectMapper.subjectResult"/>
+
+    <resultMap
+            id="sectionResult"
+            type="Section"
+            extends="com.jiyinhui.exam.mapper.SectionMapper.sectionResult">
+    </resultMap>
+
+    <sql id="sectionColumns">
+        <include refid="com.jiyinhui.exam.mapper.SectionMapper.sectionColumns"/>
+    </sql>
+
+    <sql id="subjectColumns">
+        <include refid="com.jiyinhui.exam.mapper.SubjectMapper.subjectColumns"/>
+    </sql>
+
+    <sql id="itemPoolColumns">
+        ip.id AS item_pool_id,
+        ip.topic AS item_pool_topic,
+        ip.score AS item_pool_score,
+        ip.item_pool_status_id AS item_pool_item_pool_status_id,
+        ip.section_id AS item_pool_section_id,
+        ip.is_delete AS item_pool_is_delete
+    </sql>
+
+    <sql id="itemPoolFilter">
+        <if test="filter.section != null">
+            ip.section_id = #{filter.section.id, javaType=integer, jdbcType=INTEGER}
+        </if>
+        <if test="filter.includeSectionIds != null and filter.includeSectionIds.size > 0">
+            AND
+            <foreach collection="filter.includeSectionIds" item="sectionId" separator="or" open="(" close=")">
+                ip.section_id = #{sectionId, javaType=integer, jdbcType=INTEGER}
+            </foreach>
+        </if>
+    </sql>
+
+    <select id="searchItemByFilter"
+            parameterType="ItemFilter"
+            resultMap="itemPoolResult">
+        SELECT
+            <include refid="itemPoolColumns"/>,
+            <include refid="sectionColumns"/>,
+            <include refid="subjectColumns"/>
+        FROM
+            t_item_pool ip
+        INNER JOIN t_section sec ON sec.id = ip.section_id
+        INNER JOIN t_subject sub ON sub.id = sec.subject_id
+        <where>
+            <include refid="itemPoolFilter"/>
+        </where>
+    </select>
+
+    <update
+            id="hideItemById">
+          UPDATE t_item_pool
+          <set>
+              is_delete = 1
+          </set>
+        <where>
+              id = #{id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </update>
+
+    <insert
+            id="createItem"
+            parameterType="ItemPool"
+            useGeneratedKeys="true"
+            keyColumn="id"
+            keyProperty="itemPool.id">
+        INSERT INTO t_item_pool(
+            `topic`,
+            `score`,
+            `item_pool_status_id`,
+            `section_id`,
+            `is_delete`
+        ) VALUE (
+            #{itemPool.topic, javaType=string, jdbcType=CHAR},
+            #{itemPool.score, javaType=double, jdbcType=DOUBLE},
+            #{itemPool.itemStatus.id, javaType=integer, jdbcType=INTEGER},
+            #{itemPool.section.id, javaType=integer, jdbcType=INTEGER},
+            2
+        )
+    </insert>
+
+</mapper>

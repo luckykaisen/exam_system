@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiyinhui.exam.mapper.ExaminationPaperMapper">
+
+    <resultMap
+            id="examinationPaperResult"
+            type="ExaminationPaper">
+        <id property="id" column="examination_paper_id" javaType="integer" jdbcType="INTEGER"/>
+        <result property="score" column="examination_paper_score" javaType="double" jdbcType="DOUBLE"/>
+        <result property="date" column="examination_paper_date" javaType="date" jdbcType="TIMESTAMP"/>
+
+        <association property="user" javaType="User" resultMap="userResult"/>
+        <association property="examinationTheme" javaType="ExaminationTheme" resultMap="examinationThemeResult"/>
+    </resultMap>
+
+    <resultMap
+            id="userResult"
+            type="User"
+            extends="com.jiyinhui.exam.mapper.UserMapper.userResult">
+    </resultMap>
+
+    <resultMap
+            id="examinationThemeResult"
+            type="ExaminationTheme"
+            extends="com.jiyinhui.exam.mapper.ExaminationThemeMapper.examinationThemeResult">
+    </resultMap>
+
+    <sql id="subjectColumns">
+        <include refid="com.jiyinhui.exam.mapper.SubjectMapper.subjectColumns"/>
+    </sql>
+
+    <sql id="examiationThemeColumns">
+        <include refid="com.jiyinhui.exam.mapper.ExaminationThemeMapper.examiationThemeColumns"/>
+    </sql>
+
+    <sql id="userColumns">
+        <include refid="com.jiyinhui.exam.mapper.UserMapper.userColumns"/>
+    </sql>
+
+    <sql id="examinationPaperColumns">
+        ep.id AS examination_paper_id,
+        ep.user_id AS examination_paper_user_id,
+        ep.score AS examination_paper_score,
+        ep.date AS examination_paper_date,
+        ep.examination_theme_id AS examination_paper_examination_theme_id
+    </sql>
+
+    <select
+            id="searchExaminationPaperByUserId"
+            parameterType="int"
+            resultMap="examinationPaperResult">
+        SELECT
+            <include refid="examinationPaperColumns"/>,
+            <include refid="userColumns"/>,
+            <include refid="examiationThemeColumns"/>,
+            <include refid="subjectColumns"/>
+        FROM
+            t_examination_paper ep
+            INNER JOIN t_user us ON us.id = ep.user_id
+            INNER JOIN t_examination_theme et ON et.id = ep.examination_theme_id
+            INNER JOIN t_subject sub ON sub.id = et.subject_id
+        <where>
+            ep.user_id = #{userId, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </select>
+
+
+    <select
+            id="searchExaminationPaperByThemeIdOrderByScoerDesc"
+            parameterType="int"
+            resultMap="examinationPaperResult">
+          SELECT
+              <include refid="examinationPaperColumns"/>,
+              <include refid="userColumns"/>,
+              <include refid="examiationThemeColumns"/>,
+              <include refid="subjectColumns"/>
+          FROM
+              t_examination_paper ep
+          INNER JOIN t_user us ON us.id = ep.user_id
+          INNER JOIN t_examination_theme et ON et.id = ep.examination_theme_id
+          INNER JOIN t_subject sub ON sub.id = et.subject_id
+          <where>
+              et.id = #{themeId, javaType=integer, jdbcType=INTEGER}
+          </where>
+          ORDER BY examination_paper_score DESC
+    </select>
+
+
+    <insert
+            id="insertExaminationPaper"
+            parameterType="ExaminationPaper"
+            useGeneratedKeys="true"
+            keyProperty="paper.id"
+            keyColumn="id">
+        INSERT INTO t_examination_paper(
+            `user_id`,
+            `date`,
+            `examination_theme_id`
+        ) VALUE (
+            #{paper.user.id, javaType=integer, jdbcType=INTEGER},
+            #{paper.date, javaType=date, jdbcType=TIMESTAMP},
+            #{paper.examinationTheme.id, javaType=integer, jdbcType=INTEGER}
+        )
+    </insert>
+
+    <update id="updateExaminationPaper"
+            parameterType="ExaminationPaper">
+        UPDATE t_examination_paper
+        <set>
+            score = #{paper.score, javaType=double, jdbcType=DOUBLE}
+        </set>
+        <where>
+            id = #{paper.id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </update>
+</mapper>

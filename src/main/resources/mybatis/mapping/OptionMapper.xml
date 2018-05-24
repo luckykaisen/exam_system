@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiyinhui.exam.mapper.OptionMapper">
+
+    <resultMap
+            id="optionResult"
+            type="Option">
+        <id property="id" column="option_id" javaType="integer" jdbcType="INTEGER"/>
+        <result property="option" column="option_option" javaType="string" jdbcType="VARCHAR"/>
+        <result property="answer" column="option_answer" javaType="Bool" typeHandler="BoolHandler"/>
+        <association property="itemPool" javaType="ItemPool" resultMap="itemPoolResult"/>
+    </resultMap>
+
+    <resultMap
+            id="subjectResult"
+            type="Subject"
+            extends="com.jiyinhui.exam.mapper.SubjectMapper.subjectResult"/>
+
+    <resultMap
+            id="sectionResult"
+            type="Section"
+            extends="com.jiyinhui.exam.mapper.SectionMapper.sectionResult">
+    </resultMap>
+
+    <resultMap
+            id="itemPoolResult"
+            type="ItemPool"
+            extends="com.jiyinhui.exam.mapper.ItemMapper.itemPoolResult">
+    </resultMap>
+
+    <sql id="itemPoolColumns">
+        <include refid="com.jiyinhui.exam.mapper.ItemMapper.itemPoolColumns"/>
+    </sql>
+
+    <sql id="sectionColumns">
+        <include refid="com.jiyinhui.exam.mapper.SectionMapper.sectionColumns"/>
+    </sql>
+
+    <sql id="subjectColumns">
+        <include refid="com.jiyinhui.exam.mapper.SubjectMapper.subjectColumns"/>
+    </sql>
+
+    <sql id="optionColumns">
+        opt.id AS option_id,
+        opt.option AS option_option,
+        opt.answer AS option_answer,
+        opt.item_pool_id AS option_item_pool_id
+    </sql>
+
+    <select
+            id="getOptionByItemPoolId"
+            parameterType="int"
+            resultMap="optionResult">
+        SELECT
+            <include refid="optionColumns"/>,
+            <include refid="itemPoolColumns"/>,
+            <include refid="sectionColumns"/>,
+            <include refid="subjectColumns"/>
+        FROM
+            t_option opt
+        INNER JOIN t_item_pool ip ON ip.id = opt.item_pool_id
+        INNER JOIN t_section sec ON ip.section_id = sec.id
+        INNER JOIN t_subject sub ON sub.id = sec.subject_id
+        <where>
+            opt.item_pool_id = #{id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </select>
+
+    <update id="updateOption">
+        UPDATE t_option
+        <set>
+            <if test="option.option != null">
+                `option` = #{option.option, javaType=string, jdbcType=VARCHAR},
+            </if>
+            <if test="option.answer != null">
+                `answer` = #{option.answer.id, javaType=integer, jdbcType=INTEGER},
+            </if>
+            <if test="option.itemPool != null">
+                `item_pool_id` = #{option.itemPool.id, javaType=integer, jdbcType=INTEGER}
+            </if>
+        </set>
+        <where>
+            `id` = #{option.id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </update>
+
+
+    <insert id="createOption"
+            parameterType="Option">
+        INSERT INTO t_option(
+            `option`,
+            `answer`,
+            `item_pool_id`
+        ) VALUE (
+            #{option.option, javaType=string, jdbcType=VARCHAR},
+            #{option.answer.id, javaType=integer, jdbcType=INTEGER},
+            #{option.itemPool.id, javaType=integer, jdbcType=INTEGER}
+        )
+    </insert>
+
+</mapper>

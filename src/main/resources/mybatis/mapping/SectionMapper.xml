@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiyinhui.exam.mapper.SectionMapper">
+
+    <resultMap
+        id="subjectResult"
+        type="Subject"
+        extends="com.jiyinhui.exam.mapper.SubjectMapper.subjectResult"/>
+
+    <resultMap
+            id="sectionResult"
+            type="Section">
+        <id property="id" column="section_id" javaType="integer" jdbcType="INTEGER"/>
+        <result property="name" column="section_name" javaType="string" jdbcType="CHAR"/>
+        <association property="subject" javaType="Subject" resultMap="subjectResult"/>
+    </resultMap>
+
+    <sql id="subjectColumns">
+        <include refid="com.jiyinhui.exam.mapper.SubjectMapper.subjectColumns"/>
+    </sql>
+
+    <sql id="sectionColumns">
+        sec.id AS section_id,
+        sec.name AS section_name,
+        sec.subject_id AS section_subject_id
+    </sql>
+
+    <sql id="sectionFilter">
+        <if test="filter.subjectId != null">
+            sec.subject_id = #{filter.subjectId, javaType=integer, jdbcType=INTEGER}
+        </if>
+    </sql>
+
+    <select
+            id="searchSectionByFilter"
+            parameterType="SectionFilter"
+            resultMap="sectionResult">
+        SELECT
+            <include refid="sectionColumns"/>,
+            <include refid="subjectColumns"/>
+        FROM
+            t_section sec
+        INNER JOIN t_subject sub ON sec.subject_id = sub.id
+        <where>
+            <include refid="sectionFilter"/>
+        </where>
+    </select>
+
+    <insert
+            id="createSection"
+            parameterType="section">
+        INSERT INTO t_section(
+            `name`,
+            `subject_id`
+        ) VALUE (
+            #{section.name, javaType=string, jdbcType=CHAR},
+            #{section.subject.id, javaType=integer, jdbcType=INTEGER}
+        )
+    </insert>
+
+    <delete
+            id="deleteSection"
+            parameterType="int">
+        DELETE FROM t_section
+        <where>
+            id = #{id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </delete>
+
+    <update
+            id="modifySection"
+            parameterType="Section">
+        UPDATE t_section
+        <set>
+            `name` = #{section.name, javaType=string, jdbcType=CHAR}
+        </set>
+        <where>
+            `id` = #{section.id, javaType=integer, jdbcType=INTEGER}
+        </where>
+    </update>
+
+</mapper>

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.jiyinhui.exam.mapper.UserMapper">
+
+    <resultMap
+            id="userResult"
+            type="User">
+        <id property="id" column="user_id" javaType="integer" jdbcType="INTEGER"/>
+        <result property="name" column="user_name" javaType="string" jdbcType="CHAR"/>
+        <result property="mobile" column="user_mobile" javaType="string" jdbcType="CHAR"/>
+        <result property="email" column="user_email" javaType="string" jdbcType="VARCHAR"/>
+        <result property="password" column="user_password" javaType="string" jdbcType="VARCHAR"/>
+        <result property="userStatus" column="user_user_status_id" javaType="UserStatus" jdbcType="INTEGER" typeHandler="UserStatusHandler"/>
+    </resultMap>
+
+    <sql id="userColumns">
+        us.id AS user_id,
+        us.name AS user_name,
+        us.mobile AS user_mobile,
+        us.email AS user_email,
+        us.password AS user_password,
+        us.user_status_id AS user_user_status_id
+    </sql>
+
+    <select id="getUserByMobileAndPassword"
+            parameterType="User"
+            resultMap="userResult">
+        SELECT
+            <include refid="userColumns"/>
+        FROM t_user us
+        <where>
+            us.mobile = #{user.mobile, javaType=string, jdbcType=CHAR}
+            AND
+            us.password = #{user.password, javaType=string, jdbcType=VARCHAR}
+        </where>
+    </select>
+
+    <select id="getUserByMobile"
+            parameterType="User"
+            resultMap="userResult">
+        SELECT
+        <include refid="userColumns"/>
+        FROM t_user us
+        <where>
+            us.mobile = #{mobile, javaType=string, jdbcType=VARCHAR}
+        </where>
+    </select>
+
+    <insert id="insertUser"
+            parameterType="User">
+      INSERT INTO t_user(
+          `name`,
+          `mobile`,
+          `email`,
+          `password`,
+          `user_status_id`
+      ) VALUE (
+          #{user.name, javaType=string, jdbcType=CHAR},
+          #{user.mobile, javaType=string, jdbcType=CHAR},
+          #{user.email, javaType=string, jdbcType=VARCHAR},
+          #{user.password, javaType=string, jdbcType=VARCHAR},
+          1
+      )
+    </insert>
+
+    <update id="updateUser"
+            parameterType="User">
+        UPDATE t_user
+        <set>
+            `password` = #{user.password, javaType=string, jdbcType=VARCHAR}
+        </set>
+        <where>
+            `mobile` = #{user.mobile, javaType=string, jdbcType=CHAR}
+        </where>
+    </update>
+</mapper>
